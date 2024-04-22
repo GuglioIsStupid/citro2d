@@ -356,6 +356,30 @@ static inline bool C2D_DrawImageAt(C2D_Image img, float x, float y, float depth,
 	return C2D_DrawImage(img, &params, tint);
 }
 
+/** @brief Draws an image with the GPU (variant accepting position/scaling/rotation)
+ * @param[in] img Handle of the image to draw
+ * @param[in] x X coordinate at which to place the top left corner of the image
+ * @param[in] y Y coordinate at which to place the top left corner of the image
+ * @param[in] depth Depth value to draw the image with
+ * @param[in] angle Angle (in radians) to rotate the image by, counter-clockwise
+ * @param[in] width Width of the image vertex (optional, by default the image width);
+ * @param[in] height Height of the image vertex (optional, by default the image height);
+ * @param[in] scaleX Horizontal scaling factor to apply to the image (optional, by default 1.0f); negative values apply a horizontal flip
+ * @param[in] scaleY Vertical scaling factor to apply to the image (optional, by default 1.0f); negative values apply a vertical flip
+*/
+static inline bool C2D_DrawImageWithVertex(C2D_Image img, float x, float y, float depth, float angle,
+	float width C2D_OPTIONAL(img.subtex->width), float height C2D_OPTIONAL(img.subtex->height),
+	float scaleX C2D_OPTIONAL(1.0f), float scaleY C2D_OPTIONAL(1.0f))
+{
+	C2D_DrawParams params =
+	{
+		{ x, y, width, height },
+		{ 0.0f, 0.0f },
+		depth, angle
+	};
+	return C2D_DrawImage(img, &params, nullptr);
+}
+
 /** @brief Draws an image using the GPU (variant accepting position/scaling/rotation)
  *  @param[in] img Handle of the image to draw
  *  @param[in] x X coordinate at which to place the center of the image
