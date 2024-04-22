@@ -366,10 +366,12 @@ static inline bool C2D_DrawImageAt(C2D_Image img, float x, float y, float depth,
  * @param[in] height Height of the image vertex (optional, by default the image height);
  * @param[in] scaleX Horizontal scaling factor to apply to the image (optional, by default 1.0f); negative values apply a horizontal flip
  * @param[in] scaleY Vertical scaling factor to apply to the image (optional, by default 1.0f); negative values apply a vertical flip
+ * @param[in] tint Tint parameters to apply to the image (optional, can be null)
 */
 static inline bool C2D_DrawImageWithVertex(C2D_Image img, float x, float y, float depth, float angle,
 	float width C2D_OPTIONAL(img.subtex->width), float height C2D_OPTIONAL(img.subtex->height),
-	float scaleX C2D_OPTIONAL(1.0f), float scaleY C2D_OPTIONAL(1.0f))
+	float scaleX C2D_OPTIONAL(1.0f), float scaleY C2D_OPTIONAL(1.0f),
+	const C2D_ImageTint* tint C2D_OPTIONAL(nullptr))
 {
 	C2D_DrawParams params =
 	{
@@ -377,7 +379,7 @@ static inline bool C2D_DrawImageWithVertex(C2D_Image img, float x, float y, floa
 		{ 0.0f, 0.0f },
 		depth, angle
 	};
-	return C2D_DrawImage(img, &params, nullptr);
+	return C2D_DrawImage(img, &params, tint);
 }
 
 /** @brief Draws an image using the GPU (variant accepting position/scaling/rotation)
