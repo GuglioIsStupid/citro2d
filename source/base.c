@@ -409,6 +409,40 @@ bool C2D_DrawImage(C2D_Image img, const C2D_DrawParams* params, const C2D_ImageT
 	Tex3DS_SubTextureBottomLeft (img.subtex, &tcBotLeft[0],  &tcBotLeft[1]);
 	Tex3DS_SubTextureBottomRight(img.subtex, &tcBotRight[0], &tcBotRight[1]);
 
+	// Now modify the texcoords to match the subrect (params->frame.x/y/w/h)
+	// x, y, w, h are in PIXELS, not in UV coordinates
+	// e.g.
+	/*
+	 * x = 0,
+	 * y = 0,
+	 * w = 163
+	 * h = 149
+	*/
+	// would be the top left corner of the image, and the width and height of the image
+	// so the UV coordinates would be 0, 0, 1, 1
+	// if you wanted to draw only the top left corner of the image, you would do
+	/*
+	 * x = 0,
+	 * y = 0,
+	 * w = 163/2
+	 * h = 149/2
+	*/
+	// so the UV coordinates would be 0, 0, 0.5, 0.5
+
+	// Calculate UV coordinates with the frame start x, y, w, h
+	tcTopLeft[0]  += params->frame.x / img.tex->width;
+	tcTopLeft[1]  += params->frame.y / img.tex->height;
+	// the top right corner of the image (width and height needed)
+	tcTopRight[0] += (params->frame.x + params->frame.w) / img.tex->width;
+	tcTopRight[1] += params->frame.y / img.tex->height;
+	// the bottom left corner of the image (width and height needed)
+	tcBotLeft[0]  += params->frame.x / img.tex->width;
+	tcBotLeft[1]  += (params->frame.y + params->frame.h) / img.tex->height;
+	// the bottom right corner of the image (width and height needed)
+	tcBotRight[0] += (params->frame.x + params->frame.w) / img.tex->width;
+	tcBotRight[1] += (params->frame.y + params->frame.h) / img.tex->height;
+
+
 	// Perform flip if needed
 	if (params->pos.w < 0)
 	{
@@ -428,11 +462,18 @@ bool C2D_DrawImage(C2D_Image img, const C2D_DrawParams* params, const C2D_ImageT
 	const C2D_Tint* tintBotLeft  = tint ? &tint->corners[C2D_BotLeft]  : &s_defaultTint;
 	const C2D_Tint* tintBotRight = tint ? &tint->corners[C2D_BotRight] : &s_defaultTint;
 
+	// instead of tc, use
+	/*
+	struct
+	{
+		float x, y, w, h;
+	} frame; in C2D_DrawParams*/
+
 	C2Di_AppendQuad();
-	C2Di_AppendVtx(quad.topLeft[0],  quad.topLeft[1],  params->depth, tcTopLeft[0],  tcTopLeft[1],  0, tintTopLeft->blend,  tintTopLeft->color);
-	C2Di_AppendVtx(quad.topRight[0], quad.topRight[1], params->depth, tcTopRight[0], tcTopRight[1], 0, tintTopRight->blend, tintTopRight->color);
-	C2Di_AppendVtx(quad.botLeft[0],  quad.botLeft[1],  params->depth, tcBotLeft[0],  tcBotLeft[1],  0, tintBotLeft->blend,  tintBotLeft->color);
-	C2Di_AppendVtx(quad.botRight[0], quad.botRight[1], params->depth, tcBotRight[0], tcBotRight[1], 0, tintBotRight->blend, tintBotRight->color);
+	C2Di_AppendVtx(quad.topLeft[0],  quad.topLeft[1],  params->depth, tcTopLeft[0],  tcTopLeft[1],  0.0f, tintTopLeft->blend, tintTopLeft->color);
+	C2Di_AppendVtx(quad.topRight[0], quad.topRight[1], params->depth, tcTopRight[0], tcTopRight[1], 0.0f, tintTopRight->blend, tintTopRight->color);
+	C2Di_AppendVtx(quad.botLeft[0],  quad.botLeft[1],  params->depth, tcBotLeft[0],  tcBotLeft[1],  0.0f, tintBotLeft->blend, tintBotLeft->color);
+	C2Di_AppendVtx(quad.botRight[0], quad.botRight[1], params->depth, tcBotRight[0], tcBotRight[1], 0.0f, tintBotRight->blend, tintBotRight->color);
 	return true;
 }
 

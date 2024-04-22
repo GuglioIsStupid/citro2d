@@ -28,6 +28,11 @@ typedef struct
 		float x, y;
 	} center;
 
+	struct
+	{
+		float x, y, w, h;
+	} frame;
+
 	float depth;
 	float angle;
 } C2D_DrawParams;
@@ -351,6 +356,7 @@ static inline bool C2D_DrawImageAt(C2D_Image img, float x, float y, float depth,
 	{
 		{ x, y, scaleX*img.subtex->width, scaleY*img.subtex->height },
 		{ 0.0f, 0.0f },
+		{ 0.0f, 0.0f, img.subtex->width, img.subtex->height },
 		depth, 0.0f
 	};
 	return C2D_DrawImage(img, &params, tint);
@@ -364,22 +370,27 @@ static inline bool C2D_DrawImageAt(C2D_Image img, float x, float y, float depth,
  * @param[in] angle Angle (in radians) to rotate the image by, counter-clockwise
  * @param[in] frameX X coordinate of the frame to draw (optional, by default 0.0f)
  * @param[in] frameY Y coordinate of the frame to draw (optional, by default 0.0f)
- * @param[in] width Width of the image vertex (optional, by default the image width);
- * @param[in] height Height of the image vertex (optional, by default the image height);
+ * @param[in] frameWidth Width of the image vertex (optional, by default the image width);
+ * @param[in] frameHeight Height of the image vertex (optional, by default the image height);
  * @param[in] scaleX Horizontal scaling factor to apply to the image (optional, by default 1.0f); negative values apply a horizontal flip
  * @param[in] scaleY Vertical scaling factor to apply to the image (optional, by default 1.0f); negative values apply a vertical flip
  * @param[in] tint Tint parameters to apply to the image (optional, can be null)
 */
 static inline bool C2D_DrawImageWithVertex(C2D_Image img, float x, float y, float depth, float angle,
 	float frameX C2D_OPTIONAL(0.0f), float frameY C2D_OPTIONAL(0.0f),
-	float width C2D_OPTIONAL(img.subtex->width), float height C2D_OPTIONAL(img.subtex->height),
+	float frameWidth C2D_OPTIONAL(0.0f), float frameHeight C2D_OPTIONAL(0.0f),
 	float scaleX C2D_OPTIONAL(1.0f), float scaleY C2D_OPTIONAL(1.0f),
 	const C2D_ImageTint* tint C2D_OPTIONAL(nullptr))
 {
+
+	// if width and height are 0.0f, use the image width and height
+	if (frameWidth == 0.0f) frameWidth = img.subtex->width;
+	if (frameHeight == 0.0f) frameHeight = img.subtex->height;
 	C2D_DrawParams params =
 	{
-		{ x*width, y*height, width*scaleX, height*scaleY },
-		{ frameX*width, frameY*height },
+		{ x, y, img.subtex->width*scaleX, img.subtex->height*scaleY },
+		{ 0.0f, 0.0f },
+		{ frameX, frameY, frameWidth, frameHeight},
 		depth, angle
 	};
 	return C2D_DrawImage(img, &params, tint);
@@ -403,6 +414,7 @@ static inline bool C2D_DrawImageAtRotated(C2D_Image img, float x, float y, float
 	{
 		{ x, y, scaleX*img.subtex->width, scaleY*img.subtex->height },
 		{ (scaleX*img.subtex->width)/2.0f, (scaleY*img.subtex->height)/2.0f },
+		{ 0.0f, 0.0f, img.subtex->width, img.subtex->height },
 		depth, angle
 	};
 	return C2D_DrawImage(img, &params, tint);
