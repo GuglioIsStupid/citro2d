@@ -176,4 +176,27 @@ static inline bool C2D_DrawSpriteTinted(const C2D_Sprite* sprite, const C2D_Imag
 	return C2D_DrawImage(sprite->image, &sprite->params, tint);
 }
 
+/*
+static inline bool C2D_DrawImageWithVertex(C2D_Image img, float x, float y, float depth, float angle,
+	float frameX C2D_OPTIONAL(0.0f), float frameY C2D_OPTIONAL(0.0f),
+	float width C2D_OPTIONAL(img.subtex->width), float height C2D_OPTIONAL(img.subtex->height),
+	float scaleX C2D_OPTIONAL(1.0f), float scaleY C2D_OPTIONAL(1.0f),
+	const C2D_ImageTint* tint C2D_OPTIONAL(nullptr))
+{*/
+/**
+ * @brief Draw sprite with vertex width and height
+ * @param[in] sprite Sprite to draw
+ * @param[in] frameX X position of the frame
+ * @param[in] frameY Y position of the frame
+ * @param[in] width  Width of the sprite
+ * @param[in] height Height of the sprite
+*/
+static inline bool C2D_DrawSpriteFromFramePos(const C2D_Sprite* sprite, float frameX, float frameY, float width, float height)
+{
+	return C2D_DrawImageWithVertex(
+		sprite->image, sprite->params.pos.x, sprite->params.pos.y, sprite->params.depth, sprite->params.angle,
+		frameX, frameY, width, height, 1.0f, 1.0f, NULL
+	);
+}
+
 /** @} */
