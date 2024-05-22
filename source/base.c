@@ -384,6 +384,17 @@ void C2Di_CalcQuad(C2Di_Quad* quad, const C2D_DrawParams* params)
 	quad->botLeft[1]  += params->pos.y;
 	quad->botRight[0] += params->pos.x;
 	quad->botRight[1] += params->pos.y;
+
+	// Now modify the quad to match the subrect (params->frame.x/y/w/h)
+	
+	quad->topLeft[0]  += params->frame.x;
+	quad->topLeft[1]  += params->frame.y;
+	quad->topRight[0] += params->frame.w;
+	quad->topRight[1] += params->frame.y;
+	quad->botLeft[0]  += params->frame.x;
+	quad->botLeft[1]  += params->frame.h;
+	quad->botRight[0] += params->frame.w;
+	quad->botRight[1] += params->frame.h;
 }
 
 bool C2D_DrawImage(C2D_Image img, const C2D_DrawParams* params, const C2D_ImageTint* tint)
@@ -409,40 +420,16 @@ bool C2D_DrawImage(C2D_Image img, const C2D_DrawParams* params, const C2D_ImageT
 	Tex3DS_SubTextureBottomLeft (img.subtex, &tcBotLeft[0],  &tcBotLeft[1]);
 	Tex3DS_SubTextureBottomRight(img.subtex, &tcBotRight[0], &tcBotRight[1]);
 
-	// Now modify the texcoords to match the subrect (params->frame.x/y/w/h)
-	// x, y, w, h are in PIXELS, not in UV coordinates
-	// e.g.
-	/*
-	 * x = 0,
-	 * y = 0,
-	 * w = 163
-	 * h = 149
-	*/
-	// would be the top left corner of the image, and the width and height of the image
-	// so the UV coordinates would be 0, 0, 1, 1
-	// if you wanted to draw only the top left corner of the image, you would do
-	/*
-	 * x = 0,
-	 * y = 0,
-	 * w = 163/2
-	 * h = 149/2
-	*/
-	// so the UV coordinates would be 0, 0, 0.5, 0.5
-
-	// Calculate UV coordinates with the frame start x, y, w, h
-	tcTopLeft[0]  += params->frame.x / img.tex->width;
-	tcTopLeft[1]  += params->frame.y / img.tex->height;
-	// the top right corner of the image (width and height needed)
-	tcTopRight[0] += (params->frame.x + params->frame.w) / img.tex->width;
-	tcTopRight[1] += params->frame.y / img.tex->height;
-	// the bottom left corner of the image (width and height needed)
-	tcBotLeft[0]  += params->frame.x / img.tex->width;
-	tcBotLeft[1]  += (params->frame.y + params->frame.h) / img.tex->height;
-	// the bottom right corner of the image (width and height needed)
-	tcBotRight[0] += (params->frame.x + params->frame.w) / img.tex->width;
-	tcBotRight[1] += (params->frame.y + params->frame.h) / img.tex->height;
-
-
+	tcTopLeft[0]  += params->frame.x;
+	tcTopLeft[1]  += params->frame.y;
+	tcTopRight[0] += params->frame.w;
+	tcTopRight[1] += params->frame.y;
+	tcBotLeft[0]  += params->frame.x;
+	tcBotLeft[1]  += params->frame.h;
+	tcBotRight[0] += params->frame.w;
+	tcBotRight[1] += params->frame.h;
+	
+	
 	// Perform flip if needed
 	if (params->pos.w < 0)
 	{
